@@ -1,5 +1,6 @@
 import React from "react";
 import { MenuItem, Select, Typography, Box } from "@mui/material";
+import { SelectChangeEvent } from "@mui/material/Select";
 
 interface TeamFilterProps {
   teams: { name: string; crest: string }[];
@@ -12,8 +13,8 @@ const TeamFilter: React.FC<TeamFilterProps> = ({
   onSelectTeam,
   selectedTeam,
 }) => {
-  const handleSelectTeam = (event: React.ChangeEvent<{ value: unknown }>) => {
-    const value = event.target.value as string;
+  const handleSelectTeam = (event: SelectChangeEvent<string>) => {
+    const value = event.target.value;
     onSelectTeam(value === "Todos" ? null : value);
   };
 

@@ -1,5 +1,6 @@
 import React from "react";
 import { MenuItem, Select, Typography, Box } from "@mui/material";
+import { SelectChangeEvent } from "@mui/material/Select";
 
 interface RoundFilterProps {
   rounds: number[];
@@ -12,8 +13,8 @@ const RoundFilter: React.FC<RoundFilterProps> = ({
   onSelectRound,
   selectedRound,
 }) => {
-  const handleSelectRound = (event: React.ChangeEvent<{ value: unknown }>) => {
-    const value = event.target.value as string;
+  const handleSelectRound = (event: SelectChangeEvent<string>) => {
+    const value = event.target.value;
     onSelectRound(value === "Todos" ? null : parseInt(value));
   };
 

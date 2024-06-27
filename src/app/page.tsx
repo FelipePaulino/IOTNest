@@ -1,13 +1,13 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { Grid, Typography, Box, useMediaQuery, useTheme } from "@mui/material";
-import axios, { AxiosRequestConfig } from "axios";
-import ChampionshipTable from "./components/ChampionshipTable";
-import TeamFilter from "./components/TeamFilter";
-import RoundFilter from "./components/RoundFilter";
-import MatchList from "./components/MatchList";
-import LoaderSrc from "../../public/jogador.gif";
 import Image from "next/image";
+import MatchList from "./components/MatchList";
+import TeamFilter from "./components/TeamFilter";
+import LoaderSrc from "../../public/jogador.gif";
+import axios, { AxiosRequestConfig } from "axios";
+import React, { useEffect, useState } from "react";
+import RoundFilter from "./components/RoundFilter";
+import ChampionshipTable from "./components/ChampionshipTable";
+import { Grid, Typography, Box, useMediaQuery, useTheme } from "@mui/material";
 
 interface Competition {
   id: string;
@@ -15,10 +15,10 @@ interface Competition {
 }
 
 function Home() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [competitions, setCompetitions] = useState<Competition[]>([]);
-  const [selectedChampionship, setSelectedChampionship] = useState<
-    string | null
-  >(null);
   const [teams, setTeams] = useState<any[]>([]);
   const [rounds, setRounds] = useState<number[]>([]);
   const [matches, setMatches] = useState<any[]>([]);
@@ -26,9 +26,9 @@ function Home() {
   const [selectedRound, setSelectedRound] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [selectedChampionship, setSelectedChampionship] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     const fetchCompetitions = async () => {
@@ -74,35 +74,27 @@ function Home() {
 
           setMatches(response.data.matches);
 
-          const teams = [
-            ...new Map(
-              response.data.matches.flatMap(
-                (match: {
-                  homeTeam: { id: any; name: any; crest: any };
-                  awayTeam: { id: any; name: any; crest: any };
-                }) => [
-                  [
-                    match.homeTeam.id,
-                    { name: match.homeTeam.name, crest: match.homeTeam.crest },
-                  ],
-                  [
-                    match.awayTeam.id,
-                    { name: match.awayTeam.name, crest: match.awayTeam.crest },
-                  ],
-                ]
-              )
-            ).values(),
-          ];
+          const teamsMap = new Map<number, { name: string; crest: string }>();
+          response.data.matches.forEach((match: any) => {
+            teamsMap.set(match.homeTeam.id, {
+              name: match.homeTeam.name,
+              crest: match.homeTeam.crest,
+            });
+            teamsMap.set(match.awayTeam.id, {
+              name: match.awayTeam.name,
+              crest: match.awayTeam.crest,
+            });
+          });
+          const teams = Array.from(teamsMap.values());
 
           setTeams(teams);
 
-          const rounds = [
-            ...new Set(
-              response.data.matches?.map(
-                (match: { matchday: any }) => match.matchday
-              )
-            ),
-          ];
+          const roundsSet = new Set<number>();
+          response.data.matches.forEach((match: any) => {
+            roundsSet.add(match.matchday);
+          });
+          const rounds = Array.from(roundsSet);
+
           setRounds(rounds);
         } catch (err: any) {
           setError(err?.message);
