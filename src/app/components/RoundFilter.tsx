@@ -1,5 +1,5 @@
 import React from "react";
-import { MenuItem, Select, Typography } from "@mui/material";
+import { MenuItem, Select, Typography, Box } from "@mui/material";
 
 interface RoundFilterProps {
   rounds: number[];
@@ -18,8 +18,8 @@ const RoundFilter: React.FC<RoundFilterProps> = ({
   };
 
   return (
-    <div>
-      <Typography variant="h6">Selecione a Rodada</Typography>
+    <Box mb={2}>
+      <Typography variant="h6">Selecione a rodada</Typography>
       <Select
         fullWidth
         value={selectedRound !== null ? selectedRound.toString() : "Todos"}
@@ -32,7 +32,7 @@ const RoundFilter: React.FC<RoundFilterProps> = ({
           </MenuItem>
         ))}
       </Select>
-    </div>
+    </Box>
   );
 };
 

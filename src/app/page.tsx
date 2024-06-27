@@ -1,11 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { CircularProgress, Grid, Typography } from "@mui/material";
+import { Grid, Typography, Box, useMediaQuery, useTheme } from "@mui/material";
 import axios, { AxiosRequestConfig } from "axios";
 import ChampionshipTable from "./components/ChampionshipTable";
 import TeamFilter from "./components/TeamFilter";
 import RoundFilter from "./components/RoundFilter";
 import MatchList from "./components/MatchList";
+import LoaderSrc from "../../public/jogador.gif";
+import Image from "next/image";
 
 interface Competition {
   id: string;
@@ -24,6 +26,9 @@ function Home() {
   const [selectedRound, setSelectedRound] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     const fetchCompetitions = async () => {
@@ -93,7 +98,7 @@ function Home() {
 
           const rounds = [
             ...new Set(
-              response.data.matches.map(
+              response.data.matches?.map(
                 (match: { matchday: any }) => match.matchday
               )
             ),
@@ -113,53 +118,82 @@ function Home() {
   }, [selectedChampionship]);
 
   if (loading) {
-    return <CircularProgress />;
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+      >
+        <Image src={LoaderSrc} alt="loading" />
+      </Box>
+    );
   }
 
   if (error) {
-    return <Typography color="error">Error: {error}</Typography>;
+    return (
+      <Box
+        display="flex"
+        flexDirection={"column"}
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+      >
+        <Typography fontWeight={"bold"} color="error">
+          Ocorreu um erro com a aplicação: {error}
+        </Typography>
+        <Image src={LoaderSrc} alt="loading" />
+      </Box>
+    );
   }
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12}>
-        <Typography fontWeight={"bold"} fontSize={"24px"}>
-          Tabela do Campeonato
-        </Typography>
-      </Grid>
-      <Grid item xs={12}>
-        <ChampionshipTable
-          championships={competitions}
-          selectedChampionship={selectedChampionship}
-          onSelectChampionship={setSelectedChampionship}
-        />
-      </Grid>
-      {selectedChampionship && (
-        <>
+    <Box p={2} display="flex" justifyContent="center" width={"100%"}>
+      <Box
+        width={isMobile ? "100%" : "600px"}
+        maxWidth={isMobile ? "100%" : "600px"}
+      >
+        <Grid textAlign={"center"}>
+          <Typography fontWeight="bold" fontSize="24px" mb={2}>
+            Tabela do Campeonato
+          </Typography>
+        </Grid>
+        <Grid container spacing={2}>
           <Grid item xs={12}>
-            <TeamFilter
-              teams={teams}
-              onSelectTeam={setSelectedTeam}
-              selectedTeam={selectedTeam}
+            <ChampionshipTable
+              championships={competitions}
+              selectedChampionship={selectedChampionship}
+              onSelectChampionship={setSelectedChampionship}
             />
           </Grid>
-          <Grid item xs={12}>
-            <RoundFilter
-              rounds={rounds}
-              onSelectRound={setSelectedRound}
-              selectedRound={selectedRound}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <MatchList
-              matches={matches}
-              selectedTeam={selectedTeam}
-              selectedRound={selectedRound}
-            />
-          </Grid>
-        </>
-      )}
-    </Grid>
+          {selectedChampionship && (
+            <>
+              <Grid item xs={12}>
+                <TeamFilter
+                  teams={teams}
+                  onSelectTeam={setSelectedTeam}
+                  selectedTeam={selectedTeam}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <RoundFilter
+                  rounds={rounds}
+                  onSelectRound={setSelectedRound}
+                  selectedRound={selectedRound}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <MatchList
+                  matches={matches}
+                  selectedTeam={selectedTeam}
+                  selectedRound={selectedRound}
+                />
+              </Grid>
+            </>
+          )}
+        </Grid>
+      </Box>
+    </Box>
   );
 }
 

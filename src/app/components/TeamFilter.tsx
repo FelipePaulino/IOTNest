@@ -1,5 +1,5 @@
 import React from "react";
-import { MenuItem, Select, Typography } from "@mui/material";
+import { MenuItem, Select, Typography, Box } from "@mui/material";
 
 interface TeamFilterProps {
   teams: { name: string; crest: string }[];
@@ -18,7 +18,7 @@ const TeamFilter: React.FC<TeamFilterProps> = ({
   };
 
   return (
-    <div>
+    <Box mb={2}>
       <Typography variant="h6">Selecione a Equipe</Typography>
       <Select
         fullWidth
@@ -37,7 +37,7 @@ const TeamFilter: React.FC<TeamFilterProps> = ({
           </MenuItem>
         ))}
       </Select>
-    </div>
+    </Box>
   );
 };
 

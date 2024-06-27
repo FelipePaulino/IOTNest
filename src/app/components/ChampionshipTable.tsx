@@ -1,5 +1,12 @@
 import React from "react";
-import { MenuItem, Select, Typography } from "@mui/material";
+import {
+  MenuItem,
+  Select,
+  Typography,
+  Box,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 
 interface ChampionshipTableProps {
   championships: any;
@@ -12,28 +19,31 @@ const ChampionshipTable: React.FC<ChampionshipTableProps> = ({
   selectedChampionship,
   onSelectChampionship,
 }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   return (
-    <div>
-      <Typography variant="h6">Selecione o Campeonato</Typography>
+    <Box mb={2}>
+      <Typography variant="h6">Selecione o campeonato</Typography>
       <Select
         fullWidth
-        value={selectedChampionship}
+        value={selectedChampionship ?? ""}
         onChange={(e) => onSelectChampionship(e.target.value as string)}
-        defaultValue=""
+        displayEmpty
       >
-        <MenuItem value="">Selecione o Campeonato</MenuItem>
+        <MenuItem value="">Selecione o campeonato</MenuItem>
         {championships?.map((championship: any) => (
           <MenuItem key={championship?.id} value={championship?.id}>
             <img
               src={championship?.emblem}
               alt="emblem"
-              style={{ width: "22px", marginRight: "20px" }}
+              style={{ width: "22px", marginRight: isMobile ? "5px" : "20px" }}
             />
             {championship?.name}
           </MenuItem>
         ))}
       </Select>
-    </div>
+    </Box>
   );
 };
 
