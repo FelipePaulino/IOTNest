@@ -1,95 +1,166 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+import React, { useEffect, useState } from "react";
+import { CircularProgress, Grid, Typography } from "@mui/material";
+import axios, { AxiosRequestConfig } from "axios";
+import ChampionshipTable from "./components/ChampionshipTable";
+import TeamFilter from "./components/TeamFilter";
+import RoundFilter from "./components/RoundFilter";
+import MatchList from "./components/MatchList";
 
-export default function Home() {
+interface Competition {
+  id: string;
+  name: string;
+}
+
+function Home() {
+  const [competitions, setCompetitions] = useState<Competition[]>([]);
+  const [selectedChampionship, setSelectedChampionship] = useState<
+    string | null
+  >(null);
+  const [teams, setTeams] = useState<any[]>([]);
+  const [rounds, setRounds] = useState<number[]>([]);
+  const [matches, setMatches] = useState<any[]>([]);
+  const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
+  const [selectedRound, setSelectedRound] = useState<number | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCompetitions = async () => {
+      setLoading(true);
+      try {
+        const config: AxiosRequestConfig = {
+          headers: {
+            "X-Auth-Token": "6311a66f5f8746fd8860a5de6173f49f",
+          },
+        };
+
+        const response = await axios.get(
+          `https://api.football-data.org/v4/competitions`,
+          config
+        );
+
+        setCompetitions(response.data.competitions);
+      } catch (err: any) {
+        setError(err?.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCompetitions();
+  }, []);
+
+  useEffect(() => {
+    if (selectedChampionship) {
+      const fetchMatches = async () => {
+        setLoading(true);
+        try {
+          const config: AxiosRequestConfig = {
+            headers: {
+              "X-Auth-Token": "6311a66f5f8746fd8860a5de6173f49f",
+            },
+          };
+
+          const response = await axios.get(
+            `https://api.football-data.org/v4/competitions/${selectedChampionship}/matches`,
+            config
+          );
+
+          setMatches(response.data.matches);
+
+          const teams = [
+            ...new Map(
+              response.data.matches.flatMap(
+                (match: {
+                  homeTeam: { id: any; name: any; crest: any };
+                  awayTeam: { id: any; name: any; crest: any };
+                }) => [
+                  [
+                    match.homeTeam.id,
+                    { name: match.homeTeam.name, crest: match.homeTeam.crest },
+                  ],
+                  [
+                    match.awayTeam.id,
+                    { name: match.awayTeam.name, crest: match.awayTeam.crest },
+                  ],
+                ]
+              )
+            ).values(),
+          ];
+
+          setTeams(teams);
+
+          const rounds = [
+            ...new Set(
+              response.data.matches.map(
+                (match: { matchday: any }) => match.matchday
+              )
+            ),
+          ];
+          setRounds(rounds);
+        } catch (err: any) {
+          setError(err?.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchMatches();
+      setSelectedTeam(null);
+      setSelectedRound(null);
+    }
+  }, [selectedChampionship]);
+
+  if (loading) {
+    return <CircularProgress />;
+  }
+
+  if (error) {
+    return <Typography color="error">Error: {error}</Typography>;
+  }
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+    <Grid container spacing={2}>
+      <Grid item xs={12}>
+        <Typography fontWeight={"bold"} fontSize={"24px"}>
+          Tabela do Campeonato
+        </Typography>
+      </Grid>
+      <Grid item xs={12}>
+        <ChampionshipTable
+          championships={competitions}
+          selectedChampionship={selectedChampionship}
+          onSelectChampionship={setSelectedChampionship}
         />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+      </Grid>
+      {selectedChampionship && (
+        <>
+          <Grid item xs={12}>
+            <TeamFilter
+              teams={teams}
+              onSelectTeam={setSelectedTeam}
+              selectedTeam={selectedTeam}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <RoundFilter
+              rounds={rounds}
+              onSelectRound={setSelectedRound}
+              selectedRound={selectedRound}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <MatchList
+              matches={matches}
+              selectedTeam={selectedTeam}
+              selectedRound={selectedRound}
+            />
+          </Grid>
+        </>
+      )}
+    </Grid>
   );
 }
+
+export default Home;
