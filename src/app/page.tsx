@@ -12,16 +12,34 @@ import { Grid, Typography, Box, useMediaQuery, useTheme } from "@mui/material";
 interface Competition {
   id: string;
   name: string;
+  emblem: string;
 }
 
-function Home() {
+interface Team {
+  id: number;
+  name: string;
+  crest: string;
+}
+
+interface Match {
+  id: number;
+  utcDate: string;
+  matchday: number;
+  homeTeam: Team;
+  awayTeam: Team;
+}
+
+interface CustomError {
+  message: string;
+}
+const Home: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [competitions, setCompetitions] = useState<Competition[]>([]);
-  const [teams, setTeams] = useState<any[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [rounds, setRounds] = useState<number[]>([]);
-  const [matches, setMatches] = useState<any[]>([]);
+  const [matches, setMatches] = useState<Match[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [selectedRound, setSelectedRound] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -46,8 +64,9 @@ function Home() {
         );
 
         setCompetitions(response.data.competitions);
-      } catch (err: any) {
-        setError(err?.message);
+      } catch (err) {
+        const error = err as CustomError;
+        setError(error.message);
       } finally {
         setLoading(false);
       }
@@ -74,30 +93,25 @@ function Home() {
 
           setMatches(response.data.matches);
 
-          const teamsMap = new Map<number, { name: string; crest: string }>();
-          response.data.matches.forEach((match: any) => {
-            teamsMap.set(match.homeTeam.id, {
-              name: match.homeTeam.name,
-              crest: match.homeTeam.crest,
-            });
-            teamsMap.set(match.awayTeam.id, {
-              name: match.awayTeam.name,
-              crest: match.awayTeam.crest,
-            });
+          const teamsMap = new Map<number, Team>();
+          response.data.matches.forEach((match: Match) => {
+            teamsMap.set(match.homeTeam.id, match.homeTeam);
+            teamsMap.set(match.awayTeam.id, match.awayTeam);
           });
           const teams = Array.from(teamsMap.values());
 
           setTeams(teams);
 
           const roundsSet = new Set<number>();
-          response.data.matches.forEach((match: any) => {
+          response.data.matches.forEach((match: Match) => {
             roundsSet.add(match.matchday);
           });
           const rounds = Array.from(roundsSet);
 
           setRounds(rounds);
-        } catch (err: any) {
-          setError(err?.message);
+        } catch (err) {
+          const error = err as CustomError;
+          setError(error.message);
         } finally {
           setLoading(false);
         }
@@ -146,11 +160,11 @@ function Home() {
   let selectedChampionshipNome = "";
   if (selectedChampionship) {
     const selectedComp = competitions.find(
-      (comp: any) => comp.id === selectedChampionship
+      (comp: Competition) => comp.id === selectedChampionship
     );
 
     if (selectedComp) {
-      selectedChampionshipNome = selectedComp?.name;
+      selectedChampionshipNome = selectedComp.name;
     }
   }
 
@@ -256,6 +270,6 @@ function Home() {
       </Grid>
     </Grid>
   );
-}
+};
 
 export default Home;

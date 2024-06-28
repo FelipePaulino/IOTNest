@@ -40,16 +40,16 @@ const MatchList: React.FC<MatchListProps> = ({
   selectedRound,
   onRoundChange,
 }) => {
-  const [teste, setTeste] = useState<number | null>(selectedRound);
-
-  console.log(matches, "matches");
+  const [selectedRoundPage, SetSelectedRoundPage] = useState<number | null>(
+    selectedRound
+  );
 
   useEffect(() => {
-    setTeste(selectedRound);
+    SetSelectedRoundPage(selectedRound);
   }, [selectedRound]);
 
   const handleRoundChange = (newRound: number) => {
-    setTeste(newRound);
+    SetSelectedRoundPage(newRound);
     onRoundChange(newRound);
   };
 
@@ -63,7 +63,8 @@ const MatchList: React.FC<MatchListProps> = ({
       ? match.homeTeam.name === selectedTeam ||
         match.awayTeam.name === selectedTeam
       : true;
-    const byRound = teste !== null ? match.matchday === teste : true;
+    const byRound =
+      selectedRoundPage !== null ? match.matchday === selectedRoundPage : true;
     return byTeam && byRound;
   });
 
@@ -85,7 +86,7 @@ const MatchList: React.FC<MatchListProps> = ({
     <Box>
       {Object.keys(groupedMatches).map((round: any) => (
         <Box key={round} mb={2}>
-          {teste !== null ? (
+          {selectedRoundPage !== null ? (
             <Grid padding={"30px 0px 50px 0px"}>
               <Divider />
               <Grid
@@ -94,8 +95,8 @@ const MatchList: React.FC<MatchListProps> = ({
                 padding={"10px 0px"}
               >
                 <Button
-                  onClick={() => handleRoundChange(teste - 1)}
-                  disabled={teste === 1}
+                  onClick={() => handleRoundChange(selectedRoundPage - 1)}
+                  disabled={selectedRoundPage === 1}
                   sx={{ color: "green" }}
                 >
                   <ArrowBackIosIcon />
@@ -105,8 +106,8 @@ const MatchList: React.FC<MatchListProps> = ({
                   fontWeight={"bold"}
                 >{`${round}ª Rodada`}</Typography>
                 <Button
-                  onClick={() => handleRoundChange(teste + 1)}
-                  disabled={teste === maxRound}
+                  onClick={() => handleRoundChange(selectedRoundPage + 1)}
+                  disabled={selectedRoundPage === maxRound}
                   sx={{ color: "green" }}
                 >
                   <ArrowForwardIosIcon />

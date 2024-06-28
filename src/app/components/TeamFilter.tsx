@@ -4,7 +4,7 @@ import { SelectChangeEvent } from "@mui/material/Select";
 
 interface TeamFilterProps {
   teams: { name: string; crest: string }[];
-  onSelectTeam: (team: string | null) => any;
+  onSelectTeam: (team: string | null) => void;
   selectedTeam: string | null;
 }
 
