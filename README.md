@@ -13,3 +13,4 @@ npm run dev
 * React
 * Next
 * Mutarial UI
+* typescript 
