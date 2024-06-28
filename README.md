@@ -14,3 +14,7 @@ npm run dev
 * Next
 * Mutarial UI
 * typescript 
+
+## Pendência - Caso estava tomando erro de Cors, por favor adicionar essa extensão 
+
+Cross Domain - CORS
