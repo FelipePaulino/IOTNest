@@ -23,13 +23,14 @@ const ChampionshipTable: React.FC<ChampionshipTableProps> = ({
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
-    <Box mb={2}>
+    <Box>
       <Typography variant="h6">Selecione o campeonato</Typography>
       <Select
         fullWidth
         value={selectedChampionship ?? ""}
         onChange={(e) => onSelectChampionship(e.target.value as string)}
         displayEmpty
+        sx={{ height: "50px" }}
       >
         <MenuItem value="">Selecione o campeonato</MenuItem>
         {championships?.map((championship: any) => (

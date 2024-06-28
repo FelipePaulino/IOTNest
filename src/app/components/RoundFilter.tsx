@@ -25,6 +25,7 @@ const RoundFilter: React.FC<RoundFilterProps> = ({
         fullWidth
         value={selectedRound !== null ? selectedRound.toString() : "Todos"}
         onChange={handleSelectRound}
+        sx={{ height: "50px" }}
       >
         <MenuItem value="Todos">Todos</MenuItem>
         {rounds.map((round) => (

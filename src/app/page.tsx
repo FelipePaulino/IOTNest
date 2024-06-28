@@ -1,10 +1,10 @@
 "use client";
+import React, { useEffect, useState } from "react";
+import axios, { AxiosRequestConfig } from "axios";
 import Image from "next/image";
 import MatchList from "./components/MatchList";
 import TeamFilter from "./components/TeamFilter";
 import LoaderSrc from "../../public/jogador.gif";
-import axios, { AxiosRequestConfig } from "axios";
-import React, { useEffect, useState } from "react";
 import RoundFilter from "./components/RoundFilter";
 import ChampionshipTable from "./components/ChampionshipTable";
 import { Grid, Typography, Box, useMediaQuery, useTheme } from "@mui/material";
@@ -16,7 +16,7 @@ interface Competition {
 
 function Home() {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [teams, setTeams] = useState<any[]>([]);
@@ -29,6 +29,8 @@ function Home() {
   const [selectedChampionship, setSelectedChampionship] = useState<
     string | null
   >(null);
+
+  console.log(isMobile, "isMobile");
 
   useEffect(() => {
     const fetchCompetitions = async () => {
@@ -109,6 +111,10 @@ function Home() {
     }
   }, [selectedChampionship]);
 
+  const handleRoundChange = (newRound: number | null) => {
+    setSelectedRound(newRound);
+  };
+
   if (loading) {
     return (
       <Box
@@ -139,53 +145,118 @@ function Home() {
     );
   }
 
+  let selectedChampionshipNome = "";
+  if (selectedChampionship) {
+    const selectedComp = competitions.find(
+      (comp: any) => comp.id === selectedChampionship
+    );
+
+    if (selectedComp) {
+      selectedChampionshipNome = selectedComp?.name;
+    }
+  }
+
   return (
-    <Box p={2} display="flex" justifyContent="center" width={"100%"}>
-      <Box
-        width={isMobile ? "100%" : "600px"}
-        maxWidth={isMobile ? "100%" : "600px"}
+    <Grid container spacing={2} justifyContent={"center"}>
+      <Grid
+        item
+        xs={12}
+        width={"100%"}
+        height={"80px"}
+        display={"flex"}
+        alignItems={"center"}
+        justifyContent={"center"}
+        sx={{ background: "#06AA48" }}
       >
-        <Grid textAlign={"center"}>
-          <Typography fontWeight="bold" fontSize="24px" mb={2}>
-            Tabela do Campeonato
-          </Typography>
+        <Typography color={"white"} fontWeight="bold" fontSize="24px">
+          Tabela do Campeonato
+        </Typography>
+      </Grid>
+
+      <Grid
+        item
+        xs={11}
+        display={"flex"}
+        justifyContent={"center"}
+        flexDirection={isMobile ? "column" : "row"}
+        gap={2}
+      >
+        <Grid item xs={12}>
+          <ChampionshipTable
+            championships={competitions}
+            selectedChampionship={selectedChampionship}
+            onSelectChampionship={setSelectedChampionship}
+          />
         </Grid>
-        <Grid container spacing={2}>
+
+        {selectedChampionship && (
           <Grid item xs={12}>
-            <ChampionshipTable
-              championships={competitions}
-              selectedChampionship={selectedChampionship}
-              onSelectChampionship={setSelectedChampionship}
+            <TeamFilter
+              teams={teams}
+              onSelectTeam={setSelectedTeam}
+              selectedTeam={selectedTeam}
             />
           </Grid>
+        )}
+
+        {selectedChampionship && (
+          <Grid item xs={12}>
+            <RoundFilter
+              rounds={rounds}
+              onSelectRound={setSelectedRound}
+              selectedRound={selectedRound}
+            />
+          </Grid>
+        )}
+      </Grid>
+      {!isMobile && (
+        <Grid item xs={8}>
           {selectedChampionship && (
-            <>
-              <Grid item xs={12}>
-                <TeamFilter
-                  teams={teams}
-                  onSelectTeam={setSelectedTeam}
-                  selectedTeam={selectedTeam}
-                />
+            <Grid height={"100%"} sx={{ background: "#001107" }}>
+              <Grid
+                sx={{
+                  backgroundImage: "url(/football.png)",
+                  backgroundRepeat: "no-repeat",
+                  backgroundSize: "cover",
+                  width: "100%",
+                  height: "1000px",
+                }}
+              >
+                <Grid
+                  display={"flex"}
+                  justifyContent={"center"}
+                  alignItems={"start"}
+                  width={"100%"}
+                  height={"100%"}
+                  sx={{ background: "rgba(0, 0, 0, 0.5)" }}
+                >
+                  <Typography
+                    color={"white"}
+                    fontWeight={"bold"}
+                    fontSize={"32px"}
+                    marginTop={"50px"}
+                  >
+                    {selectedChampionshipNome}
+                  </Typography>
+                </Grid>
               </Grid>
-              <Grid item xs={12}>
-                <RoundFilter
-                  rounds={rounds}
-                  onSelectRound={setSelectedRound}
-                  selectedRound={selectedRound}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <MatchList
-                  matches={matches}
-                  selectedTeam={selectedTeam}
-                  selectedRound={selectedRound}
-                />
-              </Grid>
-            </>
+            </Grid>
           )}
         </Grid>
-      </Box>
-    </Box>
+      )}
+      <Grid item xs={!isMobile ? 4 : 12}>
+        {selectedChampionship && (
+          <>
+            <MatchList
+              matches={matches}
+              selectedTeam={selectedTeam}
+              selectedRound={selectedRound}
+              onRoundChange={handleRoundChange}
+            />
+          </>
+        )}
+      </Grid>
+    </Grid>
   );
 }
 

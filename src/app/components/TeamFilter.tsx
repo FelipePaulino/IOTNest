@@ -25,6 +25,7 @@ const TeamFilter: React.FC<TeamFilterProps> = ({
         fullWidth
         value={selectedTeam ?? "Todos"}
         onChange={handleSelectTeam}
+        sx={{ height: "50px" }}
       >
         <MenuItem value="Todos">Todos</MenuItem>
         {teams.map((team) => (
