@@ -30,8 +30,6 @@ function Home() {
     string | null
   >(null);
 
-  console.log(isMobile, "isMobile");
-
   useEffect(() => {
     const fetchCompetitions = async () => {
       setLoading(true);
